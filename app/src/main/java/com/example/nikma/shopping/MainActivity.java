@@ -1,6 +1,7 @@
 package com.example.nikma.shopping;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -49,15 +54,39 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onBindViewHolder(foodviewholder holder, int position, food model) {
+            protected void onBindViewHolder(foodviewholder holder, int position, final food model) {
 
                 holder.setDesc(model.getDesc());
                 holder.setImage(model.getPhotourl(),MainActivity.this);
                 holder.setName(model.getName());
+                holder.setPrice(model.getPrice());
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i =new Intent(getApplicationContext(),intermediate.class);
+                        int price = model.getPrice();
+                        i.putExtra("data",price);
+                        startActivity(i);
+
+                    }
+                });
+
             }
         };
         recyclerView.setAdapter(adapter);
 
+    }
+
+    private void logout() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Intent i = new Intent(getApplicationContext(),login.class);
+                startActivity(i);
+                finish();
+            }
+        });
     }
 
     @Override
